@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\sales_and_Inventory_for_Slow_Items_Shops.props" />
+</Project>
