@@ -69,7 +69,11 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Inventories");
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("Inventories", (string)null);
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.InventorySummary", b =>
@@ -103,7 +107,9 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("InventorySummaries");
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("InventorySummaries", (string)null);
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Product", b =>
@@ -136,7 +142,7 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasIndex("ProductTypeId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductPerches", b =>
@@ -176,7 +182,7 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductPerchess");
+                    b.ToTable("ProductPerchess", (string)null);
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductSale", b =>
@@ -216,7 +222,7 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductSales");
+                    b.ToTable("ProductSales", (string)null);
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductType", b =>
@@ -245,7 +251,7 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductTypes");
+                    b.ToTable("ProductTypes", (string)null);
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Transaction", b =>
@@ -301,8 +307,16 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
 
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("TotalPrice")
                         .HasColumnType("float");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -312,7 +326,13 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Transactions");
+                    b.HasIndex("GiverId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Unit", b =>
@@ -341,7 +361,7 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Units");
+                    b.ToTable("Units", (string)null);
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.User", b =>
@@ -390,7 +410,37 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Inventory", b =>
+                {
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.InventorySummary", b =>
+                {
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Product", b =>
@@ -402,6 +452,33 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                         .IsRequired();
 
                     b.Navigation("ProductType");
+                });
+
+            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Transaction", b =>
+                {
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.User", "Giver")
+                        .WithMany()
+                        .HasForeignKey("GiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.User", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Giver");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Receiver");
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductType", b =>

@@ -8,7 +8,7 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<ProductType> ProductTypes => Set<ProductType>();
     public DbSet<User> User => Set<User>();
-    public DbSet<Inventory> Inventories =>Set<Inventory>();
+    public DbSet<Inventory> Inventories => Set<Inventory>();
     public DbSet<InventorySummary> InventorySummaries => Set<InventorySummary>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Unit> Units => Set<Unit>();
@@ -16,6 +16,14 @@ public class ApplicationDbContext : DbContext
     public DbSet<ProductPerches> ProductPerchess => Set<ProductPerches>();
     public DbSet<Product> Products => Set<Product>();
 
-    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Transaction>()
+            .HasOne(t => t.Receiver)
+            .WithMany()
+            .HasForeignKey(t => t.ReceiverId)
+            .OnDelete(DeleteBehavior.NoAction);
+    }//func
+
 
 }

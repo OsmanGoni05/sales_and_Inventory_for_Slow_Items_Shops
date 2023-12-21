@@ -50,44 +50,45 @@ public class InventoryController : ControllerBase
     }
 
     [HttpGet("Filter")]
-    public IActionResult Filter([FromQuery] InventoryFilterRequest inventoryFilterRequest)
+    public IActionResult Filter([FromQuery] InventoryFilterRequest request)
     {
+        request.Page = request.Page == 0 ? 1 : request.Page;
         var query = _context.Inventories.AsQueryable();
 
-         if (!inventoryFilterRequest.ProductId.ToString().IsNullOrEmpty())
+         if (!request.ProductId.ToString().IsNullOrEmpty())
          {
-           query= query.Where(element => element.ProductId == inventoryFilterRequest.ProductId);
+           query= query.Where(element => element.ProductId == request.ProductId);
          }//if
 
-         if (!inventoryFilterRequest.UnitId.ToString().IsNullOrEmpty())
+         if (!request.UnitId.ToString().IsNullOrEmpty())
          {
-           query= query.Where(element => element.UnitId == inventoryFilterRequest.UnitId);
+           query= query.Where(element => element.UnitId == request.UnitId);
          }//if
 
-         if (!inventoryFilterRequest.ProductionDate.ToString().IsNullOrEmpty())
+         if (!request.ProductionDate.ToString().IsNullOrEmpty())
          {
-           query= query.Where(element => element.ProductionDate == inventoryFilterRequest.ProductionDate);
+           query= query.Where(element => element.ProductionDate == request.ProductionDate);
          }//if
 
-         if (!inventoryFilterRequest.ExpireDate.ToString().IsNullOrEmpty())
+         if (!request.ExpireDate.ToString().IsNullOrEmpty())
          {
-           query= query.Where(element => element.ExpireDate == inventoryFilterRequest.ExpireDate);
+           query= query.Where(element => element.ExpireDate == request.ExpireDate);
          }//if
 
-         if (!inventoryFilterRequest.ProductStatus!.ToString().IsNullOrEmpty())
+         if (!request.ProductStatus!.ToString().IsNullOrEmpty())
          {
-           query= query.Where(element => element.ProductStatus == inventoryFilterRequest.ProductStatus);
+           query= query.Where(element => element.ProductStatus == request.ProductStatus);
          }//if
 
-         if (!inventoryFilterRequest.SerialNumber.ToString().IsNullOrEmpty())
+         if (!request.SerialNumber.ToString().IsNullOrEmpty())
          {
-           query= query.Where(element => element.SerialNumber == inventoryFilterRequest.SerialNumber);
+           query= query.Where(element => element.SerialNumber == request.SerialNumber);
          }//if
 
         List<dynamic> inventories = query
             .OrderByDescending(element => element.Id)
-            .Skip((inventoryFilterRequest.Page - 1) * inventoryFilterRequest.Take)
-            .Take(inventoryFilterRequest.Take)
+            .Skip((request.Page - 1) * request.Take)
+            .Take(request.Take)
             .Select(element => new
         {
             element.Id,
@@ -109,14 +110,14 @@ public class InventoryController : ControllerBase
 
         int count = query.Count();
 
-        int totalPage = count <= inventoryFilterRequest.Take ? 1 : (count / inventoryFilterRequest.Take);
+        int totalPage = count <= request.Take ? 1 : (count / request.Take);
 
         var result = new BaseFilterResponse
         {
             Data = inventories,
             totalElements = count,
-            Page = inventoryFilterRequest.Page,
-            Take = inventoryFilterRequest.Take,
+            Page = request.Page,
+            Take = request.Take,
             TotalPage = totalPage
         };
         return Ok(result);

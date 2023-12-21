@@ -54,6 +54,7 @@ public class ProductController : ControllerBase
     [HttpGet("Filter")]
     public IActionResult Filter([FromQuery] ProductTypeFilterRequest request)
     {
+        request.Page = request.Page == 0 ? 1 : request.Page;
         var query = _context.Products.AsQueryable();
 
         // if (!request.ProductName.IsNullOrEmpty())

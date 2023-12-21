@@ -12,8 +12,8 @@ using sales_and_Inventory_for_Slow_Items_Shops.data;
 namespace salesandInventoryforSlowItemsShops.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231212154321_UpdateModels_1")]
-    partial class UpdateModels1
+    [Migration("20231220190323_start")]
+    partial class start
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -72,6 +72,10 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UnitId");
+
                     b.ToTable("Inventories");
                 });
 
@@ -105,6 +109,8 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("InventorySummaries");
                 });
@@ -304,8 +310,16 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
 
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("TotalPrice")
                         .HasColumnType("float");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -314,6 +328,12 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GiverId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ReceiverId");
 
                     b.ToTable("Transactions");
                 });
@@ -396,6 +416,36 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Inventory", b =>
+                {
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.InventorySummary", b =>
+                {
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Product", b =>
                 {
                     b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.ProductType", "ProductType")
@@ -405,6 +455,33 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                         .IsRequired();
 
                     b.Navigation("ProductType");
+                });
+
+            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Transaction", b =>
+                {
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.User", "Giver")
+                        .WithMany()
+                        .HasForeignKey("GiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.User", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Giver");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Receiver");
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductType", b =>
