@@ -6,4 +6,6 @@ public class TransactionState
     public const string ADVANCE = "advance" ;
     public const string PAID = "paid" ;
     public const string NON_RECOVERABLE = "non_recoverable" ;
+    public static List<string> TransactionStates { get; set; } = new(){DUE,ADVANCE,PAID,NON_RECOVERABLE};
+
 }//class

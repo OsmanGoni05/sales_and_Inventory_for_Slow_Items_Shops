@@ -4,4 +4,6 @@ public class Role
 {
     public const string STUF = "stuf";
     public const string OWNER = "owner";
+    public static List<string> Roles { get; set; } = new(){STUF,OWNER};
+
 }

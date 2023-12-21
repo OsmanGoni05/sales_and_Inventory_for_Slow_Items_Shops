@@ -65,7 +65,7 @@ public class TransactionController : ControllerBase
 
          if (!request.ProductId.ToString().IsNullOrEmpty())
          {
-            query = query.Where(element => element.ProductTypeId == request.ProductId);
+            query = query.Where(element => element.ProductId == request.ProductId);
          }//if
          if (!request.ReceiverId.ToString().IsNullOrEmpty())
          {

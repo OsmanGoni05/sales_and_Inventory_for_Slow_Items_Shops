@@ -7,8 +7,8 @@ namespace sales_and_Inventory_for_Slow_Items_Shops.models;
 
 public class Transaction : BaseModel
 {
-    public int ProductTypeId { get; set; }
-    [ForeignKey(nameof(ProductTypeId))]
+    public int ProductId { get; set; }
+    [ForeignKey(nameof(ProductId))]
     public Product Product { get; set; } = null!;
     public int ReceiverId { get; set; }
 
@@ -17,9 +17,9 @@ public class Transaction : BaseModel
     public int GiverId { get; set; }
     [ForeignKey(nameof(GiverId))]
     public User Giver { get; set; } = null!;
-    public int ParentTransactionId { get; set; }
+    public int? ParentTransactionId { get; set; }
     [ForeignKey(nameof(ParentTransactionId))]
-    public Transaction ParentTransaction { get; set; } = null!;
+    public Transaction? ParentTransaction { get; set; } = null!;
     public string Type { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
 
@@ -45,7 +45,7 @@ public class TransactionRequest
     [Required(ErrorMessage = "The field is required.")]
     [Range(1, int.MaxValue, ErrorMessage = "The value must be greater than zero.")]
     public int GiverId { get; set; }
-    public int ParentTransactionId { get; set; }
+    public int? ParentTransactionId { get; set; }
 
     [RegularExpression($"^{TransactionType.SALE}|{TransactionType.PURCHASE}|{TransactionType.DAMAGE_BY_DISTROY}|{TransactionType.DAMAGE_BY_LOST}!")]
     public string Type { get; set; } = TransactionType.SALE;
@@ -68,7 +68,7 @@ public class TransactionResponse : BaseResponse
     public int ProductId { get; set; }
     public int ReceiverId { get; set; }
     public int GiverId { get; set; }
-    public int ParentTransactionId { get; set; }
+    public int? ParentTransactionId { get; set; }
     public string Type { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
     public int Quantity { get; set; }

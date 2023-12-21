@@ -4,4 +4,5 @@ public class UserType
 {
     public const string EMPLOYE = "employe" ;
     public const string CUSTOMER = "customer";
+    public static List<string> UserTypes { get; set; } = new(){EMPLOYE,CUSTOMER};
 }
