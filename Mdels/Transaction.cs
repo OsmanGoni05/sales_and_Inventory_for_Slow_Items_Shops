@@ -22,7 +22,6 @@ public class Transaction : BaseModel
     public Transaction? ParentTransaction { get; set; } = null!;
     public string Type { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
-
     public int Quantity { get; set; }
     public double TotalPrice { get; set; }
     public double MoneyReceived { get; set; }
@@ -33,6 +32,8 @@ public class Transaction : BaseModel
     public double MFS { get; set; }
     public double Cash { get; set; }
     public DateTime Date { get; set; }
+    public List<TransactionDetail> Details { get; set; } = new();
+
 }
 public class TransactionRequest
 {
@@ -62,6 +63,7 @@ public class TransactionRequest
     public double MFS { get; set; }
     public double Cash { get; set; }
     public DateTime Date { get; set; }
+    public List<TransactionDetailRequest> Details { get; set; } = new();
 }
 public class TransactionResponse : BaseResponse
 {

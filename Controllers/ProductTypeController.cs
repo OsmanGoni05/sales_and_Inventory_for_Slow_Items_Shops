@@ -21,16 +21,20 @@ public class ProductTypeController : ControllerBase
         _context = context;
     }
     [HttpGet("GetById")]
-    public IActionResult GetById(int id)
+    public IActionResult GetById(int id, int userId)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         var find = _context.ProductTypes.Include(element => element.Products).FirstOrDefault(element => element.Id == id);
         ProductTypeResponse productResponse = _mapper.Map<ProductTypeResponse>(find);
         return Ok(productResponse);
     }
    
     [HttpGet("Option")]
-    public IActionResult Option()
+    public IActionResult Option(int userId)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         List<dynamic> elements = _context.ProductTypes
             .Select(element => new 
             {
@@ -41,8 +45,10 @@ public class ProductTypeController : ControllerBase
     }//func
 
     [HttpGet("Filter")]
-    public IActionResult Filter([FromQuery] ProductTypeFilterRequest request)
+    public IActionResult Filter(int userId, [FromQuery] ProductTypeFilterRequest request)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         request.Page = request.Page == 0 ? 1 : request.Page;
         var query = _context.ProductTypes.AsQueryable();
 
@@ -74,16 +80,20 @@ public class ProductTypeController : ControllerBase
 
 
     [HttpPost("Post")]
-    public IActionResult Post(ProductTypeRequest productTypeRequest)
+    public IActionResult Post(int userId, ProductTypeRequest productTypeRequest)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         ProductType productType = _mapper.Map<ProductType>(productTypeRequest);
         _context.ProductTypes.Add(productType);
         var result = _context.SaveChanges();
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
     }
     [HttpPut("Put")]
-    public IActionResult Put(int id, ProductTypeRequest productTypeRequest)
+    public IActionResult Put(int id, int userId, ProductTypeRequest productTypeRequest)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         ProductType? productType = _context.ProductTypes.Find(id);
         if (productType is null) return BadRequest(ResponseMessage.NOT_FOUND);
         productType = _mapper.Map(productTypeRequest, productType);
@@ -96,8 +106,10 @@ public class ProductTypeController : ControllerBase
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
     }
     [HttpDelete("Delete")]
-    public IActionResult Delete(int id)
+    public IActionResult Delete(int id, int userId)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         var find = _context.ProductTypes.Find(id);
         _context.ProductTypes.Remove(find);
         var result = _context.SaveChanges();

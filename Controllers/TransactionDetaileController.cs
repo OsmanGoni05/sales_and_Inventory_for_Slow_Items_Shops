@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using sales_and_Inventory_for_Slow_Items_Shops.Constants;
@@ -9,37 +9,43 @@ namespace sales_and_Inventory_for_Slow_Items_Shops.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UnitController : ControllerBase
+public class TransactionDetailController : ControllerBase
 {
     private readonly IMapper _mapper;
     public readonly ApplicationDbContext _context;
-    public UnitController(ApplicationDbContext context, IMapper mapper)
+    public TransactionDetailController(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
      [HttpGet("GetById")]
-    public IActionResult GetById(int id)
+    public IActionResult GetById(int id, int userId)
     {
-        var find = _context.Units.Find(id);
-        UnitResponse response = _mapper.Map<UnitResponse>(find);
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
+        var find = _context.TransactionDetails.Find(id);
+        TransactionDetailResponse response = _mapper.Map<TransactionDetailResponse>(find);
         return Ok(response);
     }
     [HttpGet("Option")]
-    public IActionResult Option()
+    public IActionResult Option(int userId)
     {
-        List<dynamic> elements = _context.Units
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
+        List<dynamic> elements = _context.Transactions
             .Select(element => new 
             {
                 element.Id,
-                Name = element.Name
+                Name = element.Id
             }).ToList<dynamic>();
         return Ok(elements);
     }//func
 
       [HttpGet("Filter")]
-    public IActionResult Filter([FromQuery] UnitFilterRequest request)
+    public IActionResult Filter(int userId, [FromQuery] UnitFilterRequest request)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         request.Page = request.Page == 0 ? 1 : request.Page;
         var query = _context.Units.AsQueryable();
 

@@ -22,10 +22,11 @@ public class InventoryController : ControllerBase
         _context = context;
     }
     [HttpGet("GetById")]
-    public IActionResult GetById(int id)
+    public IActionResult GetById(int id, int userId)
     {
+      bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         var find = _context.Inventories.Include(element => element.Product)
-        .Include(element=> element.Unit)
         .Where(element => element.Id == id)
         .Select(element => new
         {
@@ -33,8 +34,6 @@ public class InventoryController : ControllerBase
             element.SerialNumber,
             element.ProductId,
             element.Product.ProductType.ProductName,
-            element.UnitId,
-            element.Unit.Name,
             element.SalesPricePerUnit,
             element.PerchesPricePerUnit,
             element.ProductionDate,
@@ -50,19 +49,16 @@ public class InventoryController : ControllerBase
     }
 
     [HttpGet("Filter")]
-    public IActionResult Filter([FromQuery] InventoryFilterRequest request)
+    public IActionResult Filter(int userId, [FromQuery] InventoryFilterRequest request)
     {
+      bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         request.Page = request.Page == 0 ? 1 : request.Page;
         var query = _context.Inventories.AsQueryable();
 
          if (!request.ProductId.ToString().IsNullOrEmpty())
          {
            query= query.Where(element => element.ProductId == request.ProductId);
-         }//if
-
-         if (!request.UnitId.ToString().IsNullOrEmpty())
-         {
-           query= query.Where(element => element.UnitId == request.UnitId);
          }//if
 
          if (!request.ProductionDate.ToString().IsNullOrEmpty())
@@ -95,8 +91,6 @@ public class InventoryController : ControllerBase
             element.SerialNumber,
             element.ProductId,
             element.Product.ProductType.ProductName,
-            element.UnitId,
-            element.Unit.Name,
             element.SalesPricePerUnit,
             element.PerchesPricePerUnit,
             element.ProductionDate,
@@ -125,16 +119,20 @@ public class InventoryController : ControllerBase
 
 
     [HttpPost("Post")]
-    public IActionResult Post(InventoryRequest inventoryRequest)
+    public IActionResult Post(int userId, InventoryRequest inventoryRequest)
     {
+      bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         Inventory inventory = _mapper.Map<Inventory>(inventoryRequest);
         _context.Inventories.Add(inventory);
         var result = _context.SaveChanges();
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
     }
     [HttpPut("Put")]
-    public IActionResult Put(int id, InventoryRequest inventoryRequest)
+    public IActionResult Put(int id, int userId, InventoryRequest inventoryRequest)
     {
+      bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         Inventory? inventory = _context.Inventories.Find(id);
         if (inventory is null) return BadRequest(ResponseMessage.NOT_FOUND);
         inventory = _mapper.Map(inventoryRequest, inventory);
@@ -147,8 +145,10 @@ public class InventoryController : ControllerBase
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
     }
     [HttpDelete("Delete")]
-    public IActionResult Delete(int id)
+    public IActionResult Delete(int id, int userId)
     {
+      bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         var find = _context.Inventories.Find(id);
         _context.Inventories.Remove(find);
         var result = _context.SaveChanges();

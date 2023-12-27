@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using sales_and_Inventory_for_Slow_Items_Shops.data;
 
@@ -11,9 +12,11 @@ using sales_and_Inventory_for_Slow_Items_Shops.data;
 namespace salesandInventoryforSlowItemsShops.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231224145100_ModifiedUserModeTransactionDetailsupdate")]
+    partial class ModifiedUserModeTransactionDetailsupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,7 +97,7 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int>("InventoryId")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<int>("TransactionId")
@@ -107,8 +110,6 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("InventoryId");
 
                     b.HasIndex("TransactionId");
 
@@ -151,6 +152,9 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Property<Guid>("SerialNumber")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("UnitId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -160,6 +164,8 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("UnitId");
 
                     b.ToTable("Inventories");
                 });
@@ -208,26 +214,16 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BrandId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
 
                     b.Property<int>("ProductTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QualityId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UnitId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -238,15 +234,89 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BrandId");
-
                     b.HasIndex("ProductTypeId");
 
-                    b.HasIndex("QualityId");
-
-                    b.HasIndex("UnitId");
-
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductPerches", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QualityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductPerchess");
+                });
+
+            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductSale", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("QualityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReceiverId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductSales");
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductType", b =>
@@ -448,19 +518,11 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.TransactionDetail", b =>
                 {
-                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Inventory", "Inventory")
-                        .WithMany()
-                        .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Transaction", "Transaction")
-                        .WithMany("Details")
+                        .WithMany()
                         .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Inventory");
 
                     b.Navigation("Transaction");
                 });
@@ -473,7 +535,15 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Product");
+
+                    b.Navigation("Unit");
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.InventorySummary", b =>
@@ -489,37 +559,13 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Product", b =>
                 {
-                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.Brand", "Brand")
-                        .WithMany()
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.ProductType", "ProductType")
                         .WithMany("Products")
                         .HasForeignKey("ProductTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.Quality", "Quality")
-                        .WithMany()
-                        .HasForeignKey("QualityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Unit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Brand");
-
                     b.Navigation("ProductType");
-
-                    b.Navigation("Quality");
-
-                    b.Navigation("Unit");
                 });
 
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Transaction", b =>
@@ -558,11 +604,6 @@ namespace salesandInventoryforSlowItemsShops.Migrations
             modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.ProductType", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("sales_and_Inventory_for_Slow_Items_Shops.models.Transaction", b =>
-                {
-                    b.Navigation("Details");
                 });
 #pragma warning restore 612, 618
         }

@@ -12,9 +12,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<InventorySummary> InventorySummaries => Set<InventorySummary>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Unit> Units => Set<Unit>();
-    public DbSet<ProductSale> ProductSales => Set<ProductSale>();
-    public DbSet<ProductPerches> ProductPerchess => Set<ProductPerches>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<TransactionDetail> TransactionDetails => Set<TransactionDetail>();
+    public DbSet<Brand> Brands => Set<Brand>();
+    public DbSet<Quality> Qualities => Set<Quality>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,7 +25,6 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(t => t.ReceiverId)
             .OnDelete(DeleteBehavior.NoAction);
-    }//func
-
+    }//funn
 
 }

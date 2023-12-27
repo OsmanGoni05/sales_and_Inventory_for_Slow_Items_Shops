@@ -22,8 +22,10 @@ public class InventorySummaryController : ControllerBase
         _context = context;
     }
     [HttpGet("GetById")]
-    public IActionResult GetById(int id)
+    public IActionResult GetById(int id, int userId)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         var find = _context.InventorySummaries.Include(element => element.Product)
         .Where(element => element.Id == id)
         .Select(element => new
@@ -43,8 +45,10 @@ public class InventorySummaryController : ControllerBase
     }
 
     [HttpGet("Filter")]
-    public IActionResult Filter([FromQuery] InventoryFilterSummaryRequest request)
+    public IActionResult Filter(int userId, [FromQuery] InventoryFilterSummaryRequest request)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         request.Page = request.Page == 0 ? 1 : request.Page;
         var query = _context.InventorySummaries.AsQueryable();
 
@@ -88,8 +92,10 @@ public class InventorySummaryController : ControllerBase
 
 
     [HttpPost("Post")]
-    public IActionResult Post(InventorySummaryRequest request)
+    public IActionResult Post(int userId, InventorySummaryRequest request)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         InventorySummary element = _mapper.Map<InventorySummary>(request);
         _context.InventorySummaries.Add(element);
         var result = _context.SaveChanges();

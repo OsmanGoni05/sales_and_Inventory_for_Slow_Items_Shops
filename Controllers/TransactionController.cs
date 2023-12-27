@@ -22,8 +22,11 @@ public class TransactionController : ControllerBase
         _context = context;
     }
     [HttpGet("GetById")]
-    public IActionResult GetById(int id)
+    public IActionResult GetById(int userId,int id)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
+
         var find = _context.Transactions.Include(element => element.Product)
         .Include(element => element.Receiver)
         .Include(element => element.Giver)
@@ -58,8 +61,10 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet("Filter")]
-    public IActionResult Filter([FromQuery] TransactionFilterRequest request)
+    public IActionResult Filter(int userId, [FromQuery] TransactionFilterRequest request)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         request.Page = request.Page == 0 ? 1 : request.Page;
         var query = _context.Transactions.AsQueryable();
 
@@ -119,7 +124,18 @@ public class TransactionController : ControllerBase
             element.CreatedAt,
             element.CreatedBy,
             element.UpdatedAt,
-            element.UpdatedBy
+            element.UpdatedBy,
+            Details = element.Details.Select(element => new {
+                element.InventoryId,
+                ProductSerialNumber = element.Inventory.SerialNumber,
+                element.Inventory.ProductId,
+                element.Inventory.Product.ProductType.ProductName,
+                element.Inventory.ProductStatus,
+                element.Inventory.ProductionDate,
+                element.Inventory.ExpireDate,
+                element.Inventory.SalesPricePerUnit,
+                element.Inventory.PerchesPricePerUnit
+                })
         }).ToList<dynamic>();
 
         int count = query.Count();
@@ -138,12 +154,59 @@ public class TransactionController : ControllerBase
     }
 
 
-    [HttpPost("Post")]
-    public IActionResult Post(TransactionRequest request)
+    [HttpPost("Sell")]
+    public IActionResult Sell(int userId, TransactionRequest request)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         Transaction transaction = _mapper.Map<Transaction>(request);
         _context.Transactions.Add(transaction);
+        //TODO
+        //update item from Inventory 
+        //Update InventorySummary
         var result = _context.SaveChanges();
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
-    }
+    }//func
+
+    [HttpPost("Buy")]
+    public IActionResult Buy(int userId, TransactionRequest request)
+    {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
+        Transaction transaction = _mapper.Map<Transaction>(request);
+        _context.Transactions.Add(transaction);
+        //TODO
+        //add purchesed item to Inventory
+        //Update InventorySummary
+        var result = _context.SaveChanges();
+        return Ok(ResponseMessage.SUCCESS_MESSAGE);
+    }//func
+
+    [HttpPost("Damage")]
+    public IActionResult Damage(int userId, TransactionRequest request)
+    {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
+        Transaction transaction = _mapper.Map<Transaction>(request);
+        _context.Transactions.Add(transaction);
+        //TODO
+        //update from Inventory
+        //Update InventorySummary
+        var result = _context.SaveChanges();
+        return Ok(ResponseMessage.SUCCESS_MESSAGE);
+    }//func
+
+    [HttpPost("OrderRequest")]
+    public IActionResult OrderRequest(int userId, TransactionRequest request)
+    {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
+        Transaction transaction = _mapper.Map<Transaction>(request);
+        _context.Transactions.Add(transaction);
+        //TODO
+        //update from Inventory
+        //Update InventorySummary
+        var result = _context.SaveChanges();
+        return Ok(ResponseMessage.SUCCESS_MESSAGE);
+    }//func
 }
