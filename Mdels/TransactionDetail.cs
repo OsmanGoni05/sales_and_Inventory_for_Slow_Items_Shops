@@ -8,7 +8,7 @@ public class TransactionDetail : BaseModel
     public int InventoryId { get; set; }
     [ForeignKey(nameof(InventoryId))]
     public Inventory Inventory { get; set; } = null!;
-    public int? TransactionId { get; set; }
+    public int TransactionId { get; set; }
     [ForeignKey(nameof(TransactionId))]
     public Transaction Transaction { get; set; } = null!;
 }

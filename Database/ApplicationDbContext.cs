@@ -25,6 +25,11 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(t => t.ReceiverId)
             .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<TransactionDetail>()
+            .HasOne(t => t.Inventory)
+            .WithMany()
+            .HasForeignKey(t => t.InventoryId)
+            .OnDelete(DeleteBehavior.NoAction);
     }//funn
 
 }

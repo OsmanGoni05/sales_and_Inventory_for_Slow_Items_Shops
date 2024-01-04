@@ -1,6 +1,6 @@
-﻿namespace sales_and_Inventory_for_Slow_Items_Shops;
+﻿namespace sales_and_Inventory_for_Slow_Items_Shops.Constants;
 
-public class ProductStatus
+public class ProductStatusConstant
 {
     public const string SOLD = "sold" ;
     public const string PURCHASE = "purchase";

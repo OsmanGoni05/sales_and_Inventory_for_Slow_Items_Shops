@@ -10,8 +10,6 @@ public class Inventory : BaseModel
     public int ProductId { get; set; }
     [ForeignKey(nameof(ProductId))]
     public Product Product { get; set; } = null!;
-    public double PerchesPricePerUnit { get; set; }
-    public double SalesPricePerUnit { get; set; }
     public DateTime ProductionDate { get; set; }
     public DateTime ExpireDate { get; set; }
     public string ProductStatus { get; set; } = null!;// sold|purchesed|damaged
@@ -20,18 +18,14 @@ public class Inventory : BaseModel
 public class InventoryRequest
 {
     public int ProductId { get; set; }
-    public double PerchesPricePerUnit { get; set; }
-    public double SalesPricePerUnit { get; set; }
     public DateTime ProductionDate { get; set; }
     public DateTime ExpireDate { get; set; }
-    [RegularExpression($"^{ProductStatus.SOLD}|{ProductStatus.PURCHASE}|{ProductStatus.DAMAGE}!")]
-    public string Status { get; set; } = ProductStatus.SOLD;
+    [RegularExpression($"^{ProductStatusConstant.SOLD}|{ProductStatusConstant.PURCHASE}|{ProductStatusConstant.DAMAGE}!")]
+    public string ProductStatus { get; set; } = ProductStatusConstant.SOLD;
 }
 public class InventoryResponse : BaseResponse
 {
     public int ProductId { get; set; }
-    public double PerchesPricePerUnit { get; set; }
-    public double SalesPricePerUnit { get; set; }
     public DateTime ProductionDate { get; set; }
     public DateTime ExpireDate { get; set; }
     public string ProductStatus { get; set; } = null!;
@@ -42,6 +36,6 @@ public class InventoryFilterRequest : BaseFilterRequest
     public int? ProductId { get; set; }
     public DateTime? ProductionDate { get; set; }
     public DateTime? ExpireDate { get; set; }
-    public string? ProductStatus { get; set; } = null!;
+    public string? ProductStatus { get; set; }
     public Guid? SerialNumber { get; set; }
 }

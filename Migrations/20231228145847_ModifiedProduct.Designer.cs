@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using sales_and_Inventory_for_Slow_Items_Shops.data;
 
@@ -11,9 +12,11 @@ using sales_and_Inventory_for_Slow_Items_Shops.data;
 namespace salesandInventoryforSlowItemsShops.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231228145847_ModifiedProduct")]
+    partial class ModifiedProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,6 +135,9 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Property<DateTime>("ExpireDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<double>("PerchesPricePerUnit")
+                        .HasColumnType("float");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -141,6 +147,9 @@ namespace salesandInventoryforSlowItemsShops.Migrations
 
                     b.Property<DateTime>("ProductionDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<double>("SalesPricePerUnit")
+                        .HasColumnType("float");
 
                     b.Property<Guid>("SerialNumber")
                         .HasColumnType("uniqueidentifier");
@@ -218,14 +227,8 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Property<int>("ProductTypeId")
                         .HasColumnType("int");
 
-                    b.Property<double>("PurchasePrice")
-                        .HasColumnType("float");
-
                     b.Property<int>("QualityId")
                         .HasColumnType("int");
-
-                    b.Property<double>("SalePrice")
-                        .HasColumnType("float");
 
                     b.Property<int>("UnitId")
                         .HasColumnType("int");
@@ -322,6 +325,9 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Property<int?>("ParentTransactionId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -350,6 +356,8 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.HasIndex("GiverId");
 
                     b.HasIndex("ParentTransactionId");
+
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("ReceiverId");
 
@@ -529,6 +537,12 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                         .WithMany()
                         .HasForeignKey("ParentTransactionId");
 
+                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.User", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
@@ -538,6 +552,8 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Navigation("Giver");
 
                     b.Navigation("ParentTransaction");
+
+                    b.Navigation("Product");
 
                     b.Navigation("Receiver");
                 });

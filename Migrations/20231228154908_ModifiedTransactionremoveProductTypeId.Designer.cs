@@ -12,8 +12,8 @@ using sales_and_Inventory_for_Slow_Items_Shops.data;
 namespace salesandInventoryforSlowItemsShops.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231227052451_ModifiedUserModeProductAddnewfileds")]
-    partial class ModifiedUserModeProductAddnewfileds
+    [Migration("20231228154908_ModifiedTransactionremoveProductTypeId")]
+    partial class ModifiedTransactionremoveProductTypeId
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -325,9 +325,6 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Property<int?>("ParentTransactionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -356,8 +353,6 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.HasIndex("GiverId");
 
                     b.HasIndex("ParentTransactionId");
-
-                    b.HasIndex("ProductId");
 
                     b.HasIndex("ReceiverId");
 
@@ -454,7 +449,7 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Inventory", "Inventory")
                         .WithMany()
                         .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Transaction", "Transaction")
@@ -537,12 +532,6 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                         .WithMany()
                         .HasForeignKey("ParentTransactionId");
 
-                    b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("sales_and_Inventory_for_Slow_Items_Shops.models.User", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
@@ -552,8 +541,6 @@ namespace salesandInventoryforSlowItemsShops.Migrations
                     b.Navigation("Giver");
 
                     b.Navigation("ParentTransaction");
-
-                    b.Navigation("Product");
 
                     b.Navigation("Receiver");
                 });

@@ -27,8 +27,7 @@ public class TransactionController : ControllerBase
         bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
         if(!IsAuthorized) return BadRequest("Unauthorized!");
 
-        var find = _context.Transactions.Include(element => element.Product)
-        .Include(element => element.Receiver)
+        var find = _context.Transactions.Include(element => element.Receiver)
         .Include(element => element.Giver)
         .Include(element => element.ParentTransaction)
         .Where(element => element.Id == id)
@@ -37,7 +36,6 @@ public class TransactionController : ControllerBase
             element.Id,
             element.Type,
             element.State,
-            element.Product.ProductType.ProductName,
             element.ReceiverId,
             ReciverName = element.Receiver.FirstName + " "  +element.Receiver.LastName,
             element.GiverId,
@@ -68,10 +66,10 @@ public class TransactionController : ControllerBase
         request.Page = request.Page == 0 ? 1 : request.Page;
         var query = _context.Transactions.AsQueryable();
 
-         if (!request.ProductId.ToString().IsNullOrEmpty())
-         {
-            query = query.Where(element => element.ProductId == request.ProductId);
-         }//if
+        //  if (!request.ProductId.ToString().IsNullOrEmpty())
+        //  {
+        //     query = query.Where(element => element.ProductId == request.ProductId);
+        //  }//if
          if (!request.ReceiverId.ToString().IsNullOrEmpty())
          {
             query = query.Where(element => element.ReceiverId == request.ReceiverId);
@@ -99,7 +97,7 @@ public class TransactionController : ControllerBase
     
 
         List<dynamic> elements = query
-            .OrderByDescending(element => element.Product)
+            .OrderByDescending(element => element.Id)
             .Skip((request.Page - 1) * request.Take)
             .Take(request.Take)
             .Select(element => new
@@ -107,7 +105,6 @@ public class TransactionController : ControllerBase
             element.Id,
             element.Type,
             element.State,
-            element.Product.ProductType.ProductName,
             element.ReceiverId,
             ReciverName = element.Receiver.FirstName + " "  +element.Receiver.LastName,
             element.GiverId,
@@ -130,11 +127,11 @@ public class TransactionController : ControllerBase
                 ProductSerialNumber = element.Inventory.SerialNumber,
                 element.Inventory.ProductId,
                 element.Inventory.Product.ProductType.ProductName,
+                element.Inventory.Product.SalePrice,
+                element.Inventory.Product.PurchasePrice,
                 element.Inventory.ProductStatus,
                 element.Inventory.ProductionDate,
-                element.Inventory.ExpireDate,
-                element.Inventory.SalesPricePerUnit,
-                element.Inventory.PerchesPricePerUnit
+                element.Inventory.ExpireDate
                 })
         }).ToList<dynamic>();
 
@@ -155,45 +152,253 @@ public class TransactionController : ControllerBase
 
 
     [HttpPost("Sell")]
-    public IActionResult Sell(int userId, TransactionRequest request)
+    public IActionResult Sell(int userId, ShopingRequest request)
     {
-        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        var dbTransaction = _context.Database.BeginTransaction();
+        try
+        {
+            bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
         if(!IsAuthorized) return BadRequest("Unauthorized!");
-        Transaction transaction = _mapper.Map<Transaction>(request);
+        
+
+        List<Inventory> inventories = new();
+        List<dynamic> currentInventoryStatus = new();
+        bool IsAvailable = true;
+        List<TransactionDetail> transactionDetails = new();
+
+
+        //------Check Availablity of Order------
+        foreach (var item in request.ProductDetails)
+        {
+            int quantity = _context.Inventories.Where(
+                element => element.ProductId == item.InventoryDetails.ProductId &&
+                element.ProductStatus == ProductStatusConstant.PURCHASE &&
+                element.ExpireDate.AddDays(-1) > DateTime.Now
+                ).Count();
+            currentInventoryStatus.Add(new 
+            { 
+                item.InventoryDetails.ProductId,
+                OrderedQuantity = item.Quantity,
+                Available = quantity, 
+                Short = item.Quantity - quantity
+            });
+
+            if(item.Quantity > quantity) IsAvailable = false;
+
+        }//foreach
+
+        if(!IsAvailable) return Ok(currentInventoryStatus);
+        //------End of Checking Availablity of Order---------
+
+
+        //---------Update inventory product status------------
+        foreach (var item in request.ProductDetails)
+        {
+            var thisInventoris = _context.Inventories.Where(
+                element => element.ProductId == item.InventoryDetails.ProductId &&
+                element.ProductStatus == ProductStatusConstant.PURCHASE &&
+                element.ExpireDate.AddDays(-1) > DateTime.Now
+                ).ToList();
+
+            List<Inventory> updatedInventory = new();
+
+            foreach (var inventory in thisInventoris)
+            {
+                inventory.ProductStatus = ProductStatusConstant.SOLD;
+                inventory.UpdatedAt = DateTime.Now;
+
+                updatedInventory.Add(inventory);
+            }
+            inventories.AddRange(updatedInventory);
+        }//foreach
+
+        Transaction transaction = _mapper.Map<Transaction>(request.Trnasaction);
+
+        _context.Inventories.UpdateRange(inventories);
         _context.Transactions.Add(transaction);
-        //TODO
-        //update item from Inventory 
-        //Update InventorySummary
-        var result = _context.SaveChanges();
+        _context.SaveChanges();
+
+
+         foreach (var inventory in inventories)
+        {
+            TransactionDetail transactionDetail = new()
+            {
+                Id = 0,
+                InventoryId = inventory.Id,
+                TransactionId = transaction.Id
+            };
+
+            transactionDetails.Add(transactionDetail);
+        }//for
+        
+        _context.TransactionDetails.AddRange(transactionDetails);
+        _context.SaveChanges();
+
+        dbTransaction.Commit();
+
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
+
+        }//try
+        catch (System.Exception)
+        {
+            dbTransaction.Rollback();
+            throw;
+        }//catch
     }//func
 
     [HttpPost("Buy")]
-    public IActionResult Buy(int userId, TransactionRequest request)
+    public IActionResult Buy(int userId, ShopingRequest request)
     {
-        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        var dbTransaction = _context.Database.BeginTransaction();
+        try
+        {
+            bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
         if(!IsAuthorized) return BadRequest("Unauthorized!");
-        Transaction transaction = _mapper.Map<Transaction>(request);
+        
+
+        List<Inventory> inventories = new();
+        List<TransactionDetail> transactionDetails = new();
+
+        //---------Create inventory ------------
+        foreach (var item in request.ProductDetails)
+        {
+            List<Inventory> newInventories = new();
+
+            for(int i = 0; i < item.Quantity ; i++)
+            {
+                Inventory newInventory = _mapper.Map<Inventory>(item.InventoryDetails);
+                newInventory.ProductStatus = ProductStatusConstant.PURCHASE;
+                newInventories.Add(newInventory);
+            }//for
+            inventories.AddRange(newInventories);
+        }//foreach
+
+        Transaction transaction = _mapper.Map<Transaction>(request.Trnasaction);
+
+        _context.Inventories.UpdateRange(inventories);
         _context.Transactions.Add(transaction);
-        //TODO
-        //add purchesed item to Inventory
-        //Update InventorySummary
-        var result = _context.SaveChanges();
+        _context.SaveChanges();
+
+
+         foreach (var inventory in inventories)
+        {
+            TransactionDetail transactionDetail = new()
+            {
+                Id = 0,
+                InventoryId = inventory.Id,
+                TransactionId = transaction.Id
+            };
+
+            transactionDetails.Add(transactionDetail);
+        }//for
+        
+        _context.TransactionDetails.AddRange(transactionDetails);
+        _context.SaveChanges();
+
+        dbTransaction.Commit();
+
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
+
+        }//try
+        catch (System.Exception)
+        {
+            dbTransaction.Rollback();
+            throw;
+        }
     }//func
 
     [HttpPost("Damage")]
-    public IActionResult Damage(int userId, TransactionRequest request)
+    public IActionResult Damage(int userId, ShopingRequest request)
     {
-        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        var dbTransaction = _context.Database.BeginTransaction();
+        try
+        {
+            bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
         if(!IsAuthorized) return BadRequest("Unauthorized!");
-        Transaction transaction = _mapper.Map<Transaction>(request);
+        
+
+        List<Inventory> inventories = new();
+        List<dynamic> currentInventoryStatus = new();
+        bool IsAvailable = true;
+        List<TransactionDetail> transactionDetails = new();
+
+
+        //------Check Availablity of Order------
+        foreach (var item in request.ProductDetails)
+        {
+            int quantity = _context.Inventories.Where(
+                element => element.ProductId == item.InventoryDetails.ProductId &&
+                element.ExpireDate < DateTime.Now
+                ).Count();
+            currentInventoryStatus.Add(new 
+            { 
+                item.InventoryDetails.ProductId,
+                OrderedQuantity = item.Quantity,
+                Available = quantity, 
+                Short = item.Quantity - quantity
+            });
+
+            if(item.Quantity > quantity) IsAvailable = false;
+
+        }//foreach
+
+        if(!IsAvailable) return Ok(currentInventoryStatus);
+        //------End of Checking Availablity of Order---------
+
+
+        //---------Update inventory product status------------
+        foreach (var item in request.ProductDetails)
+        {
+            var thisInventoris = _context.Inventories.Where(
+                element => element.ProductId == item.InventoryDetails.ProductId &&
+                element.ProductStatus == ProductStatusConstant.PURCHASE &&
+                element.ExpireDate.AddDays(-1) > DateTime.Now
+                ).ToList();
+
+            List<Inventory> updatedInventory = new();
+
+            foreach (var inventory in thisInventoris)
+            {
+                inventory.ProductStatus = ProductStatusConstant.SOLD;
+                inventory.UpdatedAt = DateTime.Now;
+
+                updatedInventory.Add(inventory);
+            }
+            inventories.AddRange(updatedInventory);
+        }//foreach
+
+        Transaction transaction = _mapper.Map<Transaction>(request.Trnasaction);
+
+        _context.Inventories.UpdateRange(inventories);
         _context.Transactions.Add(transaction);
-        //TODO
-        //update from Inventory
-        //Update InventorySummary
-        var result = _context.SaveChanges();
+        _context.SaveChanges();
+
+
+         foreach (var inventory in inventories)
+        {
+            TransactionDetail transactionDetail = new()
+            {
+                Id = 0,
+                InventoryId = inventory.Id,
+                TransactionId = transaction.Id
+            };
+
+            transactionDetails.Add(transactionDetail);
+        }//for
+        
+        _context.TransactionDetails.AddRange(transactionDetails);
+        _context.SaveChanges();
+
+        dbTransaction.Commit();
+
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
+
+        }//try
+        catch (System.Exception)
+        {
+            dbTransaction.Rollback();
+            throw;
+        }
     }//func
 
     [HttpPost("OrderRequest")]

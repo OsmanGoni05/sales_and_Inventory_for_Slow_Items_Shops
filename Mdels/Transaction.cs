@@ -7,9 +7,6 @@ namespace sales_and_Inventory_for_Slow_Items_Shops.models;
 
 public class Transaction : BaseModel
 {
-    public int ProductId { get; set; }
-    [ForeignKey(nameof(ProductId))]
-    public Product Product { get; set; } = null!;
     public int ReceiverId { get; set; }
 
     [ForeignKey(nameof(ReceiverId))]
@@ -37,7 +34,6 @@ public class Transaction : BaseModel
 }
 public class TransactionRequest
 {
-    public int ProductId { get; set; }
 
     [Required(ErrorMessage = "The field is required.")]
     [Range(1, int.MaxValue, ErrorMessage = "The value must be greater than zero.")]
@@ -63,11 +59,9 @@ public class TransactionRequest
     public double MFS { get; set; }
     public double Cash { get; set; }
     public DateTime Date { get; set; }
-    public List<TransactionDetailRequest> Details { get; set; } = new();
 }
 public class TransactionResponse : BaseResponse
 {
-    public int ProductId { get; set; }
     public int ReceiverId { get; set; }
     public int GiverId { get; set; }
     public int? ParentTransactionId { get; set; }
@@ -87,11 +81,24 @@ public class TransactionResponse : BaseResponse
 
 public class TransactionFilterRequest : BaseFilterRequest
 {
-    public int? ProductId { get; set; }
+
     public int? ReceiverId { get; set; }
     public int? GiverId { get; set; }
     public int? ParentTransactionId { get; set; }
     public string? Type { get; set; } = string.Empty;
     public string? State { get; set; } = string.Empty;
     public DateTime? Date { get; set; }
+}
+
+
+public class ShopingRequest
+{
+    public List<ProductDetails> ProductDetails { get; set; } = new();
+    public TransactionRequest Trnasaction { get; set; } = null!;
+}//class
+
+public class ProductDetails
+{
+    public InventoryRequest InventoryDetails { get; set; } = null!;
+    public int Quantity { get; set; }
 }

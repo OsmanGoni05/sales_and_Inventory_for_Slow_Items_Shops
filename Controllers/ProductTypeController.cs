@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +46,7 @@ public class ProductTypeController : ControllerBase
     }//func
 
     [HttpGet("Filter")]
-    public IActionResult Filter(int userId, [FromQuery] ProductTypeFilterRequest request)
+    public IActionResult Filter([Required(ErrorMessage ="User Id is Required!")]int userId, [FromQuery] ProductTypeFilterRequest request)
     {
         bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
         if(!IsAuthorized) return BadRequest("Unauthorized!");

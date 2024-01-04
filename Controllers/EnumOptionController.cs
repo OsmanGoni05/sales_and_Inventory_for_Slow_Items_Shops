@@ -36,6 +36,6 @@ public class EnumOptionController : ControllerBase
     public IActionResult RolesOption() => Ok(Role.Roles);
 
     [HttpGet("ProductStatusOption")]
-    public IActionResult ProductStatusOption() => Ok(ProductStatus.ProductStatues);
+    public IActionResult ProductStatusOption() => Ok(ProductStatusConstant.ProductStatues);
 
 }//class

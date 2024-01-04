@@ -3986,11 +3986,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Desktop\\sales_and_Inventory_for_Slow_Items_Shops\\sales_and_Inventory_for_Slow_Items_Shops.csproj",
+      "projectUniqueName": "E:\\sales_and_Inventory_for_Slow_Items_Shops\\sales_and_Inventory_for_Slow_Items_Shops.csproj",
       "projectName": "sales_and_Inventory_for_Slow_Items_Shops",
-      "projectPath": "C:\\Users\\User\\Desktop\\sales_and_Inventory_for_Slow_Items_Shops\\sales_and_Inventory_for_Slow_Items_Shops.csproj",
+      "projectPath": "E:\\sales_and_Inventory_for_Slow_Items_Shops\\sales_and_Inventory_for_Slow_Items_Shops.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Desktop\\sales_and_Inventory_for_Slow_Items_Shops\\obj\\",
+      "outputPath": "E:\\sales_and_Inventory_for_Slow_Items_Shops\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"

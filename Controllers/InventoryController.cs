@@ -34,8 +34,6 @@ public class InventoryController : ControllerBase
             element.SerialNumber,
             element.ProductId,
             element.Product.ProductType.ProductName,
-            element.SalesPricePerUnit,
-            element.PerchesPricePerUnit,
             element.ProductionDate,
             element.ExpireDate,
             element.ProductStatus,
@@ -71,7 +69,7 @@ public class InventoryController : ControllerBase
            query= query.Where(element => element.ExpireDate == request.ExpireDate);
          }//if
 
-         if (!request.ProductStatus!.ToString().IsNullOrEmpty())
+         if (!request.ProductStatus.IsNullOrEmpty())
          {
            query= query.Where(element => element.ProductStatus == request.ProductStatus);
          }//if
@@ -91,8 +89,6 @@ public class InventoryController : ControllerBase
             element.SerialNumber,
             element.ProductId,
             element.Product.ProductType.ProductName,
-            element.SalesPricePerUnit,
-            element.PerchesPricePerUnit,
             element.ProductionDate,
             element.ExpireDate,
             element.ProductStatus,

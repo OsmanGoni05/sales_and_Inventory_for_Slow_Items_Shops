@@ -24,7 +24,8 @@ public class Product : BaseModel
     public int BrandId {get; set;}
     [ForeignKey(nameof(BrandId))]
     public Brand Brand {get; set;} = null!;
-
+    public double SalePrice { get; set; }
+    public double PurchasePrice { get; set; }
 }
 
 public class ProductRequest
@@ -32,11 +33,12 @@ public class ProductRequest
 
     [Required]
     public int ProductTypeId { get; set; }
-    public double Price { get; set; }
+    public double SalePrice { get; set; }
+    public double PurchasePrice { get; set; }
     public int UnitId { get; set; }
-    public string Description {get; set;} = null!;
     public int QualityId {get; set;}
     public int BrandId {get; set;}
+    public string Description {get; set;} = null!;
 }
 
 public class ProductResponse : BaseResponse
@@ -49,10 +51,10 @@ public class ProductResponse : BaseResponse
     public int BrandId {get; set;}
 }
 
-public class productFilterRequest : BaseFilterRequest
+public class ProductFilterRequest : BaseFilterRequest
 {
     public int? ProductTypeId { get; set; }
-    public int? ProductType { get; set; }
+    public int? UnitId { get; set; }
     public int? QualityId {get; set;}
     public int? BrandId {get; set;}
 }
