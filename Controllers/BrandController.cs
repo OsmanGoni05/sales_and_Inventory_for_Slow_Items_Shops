@@ -19,8 +19,10 @@ public class BrandController : ControllerBase
         _mapper = mapper;
     }
      [HttpGet("GetById")]
-    public IActionResult GetById(int id)
+    public IActionResult GetById(int id, int userId)
     {
+        bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
+        if(!IsAuthorized) return BadRequest("Unauthorized!");
         var find = _context.Brands.Find(id);
         BrandResponse response = _mapper.Map<BrandResponse>(find);
         return Ok(response);
@@ -47,18 +49,18 @@ public class BrandController : ControllerBase
 
         if (!request.Name.IsNullOrEmpty())
         {
-            query = query.Where(element => element.Name == request.Name);
+            query = query.Where(element => element.Name.Contains(request.Name));
         }//if
 
         List<Brand> brand  = query
-            .OrderByDescending(element => element.Id)
+            .OrderByDescending(element => element.UpdatedAt)
             .Skip((request.Page - 1) * request.Take)
             .Take(request.Take)
             .ToList();
 
         int count = query.Count();
 
-        int totalPage = count <= request.Take ? 1 : (count / request.Take); 
+        int totalPage = (int)(count <= request.Take ? 1 : Math.Ceiling(count / (double)request.Take)); 
 
         List<BrandResponse> elements = _mapper.Map<List<BrandResponse>>(brand);
         var result = new BaseFilterResponse
@@ -77,6 +79,9 @@ public class BrandController : ControllerBase
         bool IsAuthorized = LogInChecker.CheckLogIn(userId,_context);
         if(!IsAuthorized) return BadRequest("Unauthorized!");
         Brand brand = _mapper.Map<Brand>(request);
+        brand.CreatedAt = DateTime.Now;
+        brand.CreatedBy = userId;
+        brand.UpdatedAt = brand.CreatedAt;
         _context.Brands.Add(brand);
         var result = _context.SaveChanges();
         return Ok(ResponseMessage.SUCCESS_MESSAGE);
@@ -89,8 +94,8 @@ public class BrandController : ControllerBase
         Brand? brand = _context.Brands.Find(id);
         if(brand is null) return BadRequest(ResponseMessage.NOT_FOUND);
         brand = _mapper.Map(request, brand);
-        brand.UpdatedAt = DateTime.UtcNow;
-        brand.UpdatedBy = 0;
+        brand.UpdatedAt = DateTime.Now;
+        brand.UpdatedBy = userId;
         _context.Brands.Update(brand);
         var result = _context.SaveChanges();
         return Ok(ResponseMessage.SUCCESS_MESSAGE);

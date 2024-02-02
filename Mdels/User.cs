@@ -1,3 +1,5 @@
+//In the name of Allah
+
 using System.ComponentModel.DataAnnotations;
 
 namespace sales_and_Inventory_for_Slow_Items_Shops.models;
@@ -34,6 +36,7 @@ public class UserResponse : BaseResponse
     public string Password { get; set; } = string.Empty;
     public string UserType { get; set; } = string.Empty;
 }
+
 public class UserFilterRequest  : BaseFilterRequest
 {
     public string FirstName { get; set; } = string.Empty;

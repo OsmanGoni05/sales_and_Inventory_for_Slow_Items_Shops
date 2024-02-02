@@ -14,8 +14,21 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContextPool<ApplicationDbContext>(
     o => o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAnyOrigin",
+                builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+        });
 var app = builder.Build();
 
+ app.UseCors("AllowAnyOrigin");
+ 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

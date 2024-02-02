@@ -137,7 +137,7 @@ public class TransactionController : ControllerBase
 
         int count = query.Count();
 
-        int totalPage = count <= request.Take ? 1 : (count / request.Take);
+        int totalPage = (int)(count <= request.Take ? 1 : Math.Ceiling(count / (double)request.Take));
 
         var result = new BaseFilterResponse
         {

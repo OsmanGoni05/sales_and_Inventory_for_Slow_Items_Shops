@@ -5,5 +5,5 @@ public class BaseResponse{
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public int UpdatedBy { get; set; }
-    public DateTime UpdatesAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

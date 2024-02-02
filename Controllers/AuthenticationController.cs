@@ -21,21 +21,20 @@ public class AuthenticationController : ControllerBase
     [HttpGet("Profile")]
     public IActionResult Profile(int id)
     {
-       dynamic? user = _context.User
-            .Select(element => new
-        {
-            element.Id,
-            element.FirstName,
-            element.LastName,
-            element.RoleName,
-            element.MobileNumber,
-            element.IsLogedIn,
-            element.CreatedAt,
-            element.CreatedBy,
-            element.UpdatedAt,
-            element.UpdatedBy
-        }).FirstOrDefault();
-        if(user is null) return BadRequest("User not exist.");
+        dynamic? user = _context.User
+             .Select(element => new
+             {
+                 element.Id,
+                 element.FirstName,
+                 element.LastName,
+                 element.Role,
+                 element.UserType,
+                 element.MobileNumber,
+                 element.IsLogedIn,
+                 element.CreatedAt,
+                 element.UpdatedAt
+             }).FirstOrDefault();
+        if (user is null) return BadRequest("User not exist.");
         return Ok(user);
     }
     [HttpGet("Option")]
@@ -50,21 +49,25 @@ public class AuthenticationController : ControllerBase
         return Ok(elements);
     }//func
 
-   
+
     [HttpPost("Registration")]
     public IActionResult Registration(RegistrationRequest request)
     {
         var oldUser = _context.User.FirstOrDefault(element => element.MobileNumber == request.MobileNumber);
         if (oldUser != null)
         {
-            return BadRequest("Mobile number is already used. Try new one.");
-        }
+            return Ok("Mobile number is already used. Try new one.");
+        }//if
         User registration = _mapper.Map<User>(request);
         registration.IsLogedIn = true;
         _context.User.Add(registration);
         var result = _context.SaveChanges();
-        return Ok(ResponseMessage.SUCCESS_MESSAGE);
-    }
+        return Ok(new
+        {
+            Status = ResponseMessage.SUCCESS_MESSAGE,
+            id = registration.Id
+        });
+    }//func
 
     [HttpPost("LogIn")]
     public IActionResult LogIn(RegistrationRequest request)
@@ -72,13 +75,13 @@ public class AuthenticationController : ControllerBase
         var oldUser = _context.User.FirstOrDefault(element => element.MobileNumber == request.MobileNumber);
         if (oldUser == null)
         {
-            return BadRequest("User not exist.");
+            return Ok("User not exist.");
         }
         else
         {
             if (oldUser.Password != request.Password)
             {
-                return BadRequest("Username or password is wrong.");
+                return Ok("Username or password is wrong.");
             }
             else
             {
@@ -87,7 +90,11 @@ public class AuthenticationController : ControllerBase
                 logIn.IsLogedIn = true;
                 _context.User.Update(logIn);
                 var result = _context.SaveChanges();
-                return Ok(ResponseMessage.SUCCESS_MESSAGE);
+                return Ok(new
+                {
+                    status = ResponseMessage.SUCCESS_MESSAGE,
+                    id = logIn.Id
+                });
             }
         }
 

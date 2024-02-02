@@ -23,6 +23,6 @@ public class ProductTypeResponse : BaseResponse
 
 public class ProductTypeFilterRequest : BaseFilterRequest
 {
-    public string? ProductName { get; set; } 
+    public string? ProductName { get; set; } = string.Empty;
 }
-
+//

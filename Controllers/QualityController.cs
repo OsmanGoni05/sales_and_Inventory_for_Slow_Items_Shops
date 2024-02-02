@@ -9,11 +9,11 @@ namespace sales_and_Inventory_for_Slow_Items_Shops.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class QuaityTypeController : ControllerBase
+public class QualityTypeController : ControllerBase
 {
     private readonly IMapper _mapper;
     public readonly ApplicationDbContext _context;
-    public QuaityTypeController(ApplicationDbContext context, IMapper mapper)
+    public QualityTypeController(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
@@ -44,7 +44,7 @@ public class QuaityTypeController : ControllerBase
 
         if (!request.Name.IsNullOrEmpty())
         {
-            query = query.Where(element => element.Name == request.Name);
+            query = query.Where(element => element.Name.Contains(request.Name));
         }//if
 
         List<Quality> quality  = query
@@ -55,7 +55,7 @@ public class QuaityTypeController : ControllerBase
 
         int count = query.Count();
 
-        int totalPage = count <= request.Take ? 1 : (count / request.Take); 
+        int totalPage = (int)(count <= request.Take ? 1 : Math.Ceiling(count / (double)request.Take)); 
 
         List<QualityResponse> elements = _mapper.Map<List<QualityResponse>>(quality);
         var result = new BaseFilterResponse

@@ -41,7 +41,7 @@ public class UserController : ControllerBase
 
         if (!request.FirstName.IsNullOrEmpty())
         {
-           query = query.Where(element => element.FirstName == request.FirstName);
+           query = query.Where(element => element.FirstName.Contains(request.FirstName));
         }//if
 
       List<dynamic> users = query
@@ -63,7 +63,7 @@ public class UserController : ControllerBase
 
         int count = query.Count();
 
-        int totalPage = count <= request.Take ? 1 : (count / request.Take); 
+        int totalPage = (int)(count <= request.Take ? 1 : Math.Ceiling(count / (double)request.Take)); 
 
         var result = new BaseFilterResponse
         {

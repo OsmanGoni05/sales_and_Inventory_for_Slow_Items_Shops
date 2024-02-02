@@ -55,7 +55,7 @@ public class ProductTypeController : ControllerBase
 
         if (!request.ProductName.IsNullOrEmpty())
         {
-            query.Where(element => element.ProductName == request.ProductName);
+            query.Where(element => element.ProductName.Contains(request.ProductName));
         }//if
 
         List<ProductType> productTypes = query
@@ -66,7 +66,7 @@ public class ProductTypeController : ControllerBase
 
         int count = query.Count();
 
-        int totalPage = count <= request.Take ? 1 : (count / request.Take); 
+        int totalPage = (int)(count <= request.Take ? 1 : Math.Ceiling(count / (double)request.Take)); 
 
         List<ProductTypeResponse> elements = _mapper.Map<List<ProductTypeResponse>>(productTypes);
         var result = new BaseFilterResponse

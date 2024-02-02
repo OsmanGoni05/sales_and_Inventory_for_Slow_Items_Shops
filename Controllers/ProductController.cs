@@ -2,6 +2,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.IdentityModel.Tokens;
 using sales_and_Inventory_for_Slow_Items_Shops.Constants;
 using sales_and_Inventory_for_Slow_Items_Shops.data;
@@ -115,7 +116,7 @@ public class ProductController : ControllerBase
 
         int count = query.Count();
 
-        int totalPage = count <= request.Take ? 1 : (count / (request.Take == 0 ? 1 : request.Take));
+        int totalPage = (int)(count <= request.Take ? 1 : Math.Ceiling(count / (double)request.Take));
         var result = new BaseFilterResponse
         {
 

@@ -3,8 +3,8 @@
 public class Role
 {
     public const string CUSTOMER = "custoemr";
-    public const string STUF = "stuf";
+    public const string STUFF = "stuff";
     public const string OWNER = "owner";
-    public static List<string> Roles { get; set; } = new(){STUF,OWNER, CUSTOMER};
+    public static List<string> Roles { get; set; } = new(){STUFF,OWNER, CUSTOMER};
 
 }

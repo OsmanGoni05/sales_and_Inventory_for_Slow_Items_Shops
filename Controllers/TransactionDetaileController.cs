@@ -62,7 +62,7 @@ public class TransactionDetailController : ControllerBase
 
         int count = query.Count();
 
-        int totalPage = count <= request.Take ? 1 : (count / request.Take);
+        int totalPage = (int)(count <= request.Take ? 1 : Math.Ceiling(count / (double)request.Take));
 
         List<UnitResponse> elements = _mapper.Map<List<UnitResponse>>(unit);
         var result = new BaseFilterResponse
